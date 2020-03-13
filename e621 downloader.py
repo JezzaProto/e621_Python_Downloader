@@ -1,8 +1,10 @@
 import requests
 import time
 import json
-tag = str(input("Please enter what tags you would like (separated with a colon):\n"))
-tags = tag.split(":")
+from os.path import join as pjoin
+import os
+tag = str(input("Please enter what tags you would like (separated with a semicolon):\n"))
+tags = tag.split(";")
 postnum = str(input("Please enter how many posts you would like to download:\n"))
 # Get user-defined url
 url = "https://e621.net/posts.json?tags=" # Generates first static part of e621.net api url
@@ -15,8 +17,6 @@ req = requests.get(url) # Sends a get request to server to get back urls of imag
 data = req.json() # Records the response as json
 data = str(data)
 res = [i for i in range(len(data)) if data.startswith("https://static1.e621.net/data", i)] # Find all strings starting with the e621 url
-print(res)
-print(url)
 x = 0
 while x < len(res):
     startpos = res[x]
@@ -28,4 +28,28 @@ while x < len(res):
     else:
         x += 1
     res = [i for i in range(len(data)) if data.startswith("https://static1.e621.net/data", i)] # Update res
-print(data)
+urls = []
+x = 0
+while x < len(res):
+    res = [i for i in range(len(data)) if data.startswith("https://static1.e621.net/data", i)] # Update res
+    startpos = res[x]
+    endpos = res[x]+72 # Standard url length
+    tempurl = data[startpos:endpos]
+    urls.append(tempurl)
+    x += 1
+x = 0
+while x < len(urls):
+    fileName = urls[x]
+    fileName = fileName[36:]
+    if ".web" in fileName:
+        print("Skipping WEBM download")
+        x += 1
+        continue
+    img = requests.get(urls[x])
+    cwd = os.getcwd()
+    filePath = cwd + "\\Downloads\\" + fileName
+    with open(filePath,"wb") as code:
+        code.write(img.content)
+    x += 1
+    time.sleep(1)
+    print("Downloading {0}".format(fileName))
