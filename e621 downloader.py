@@ -39,14 +39,20 @@ while x < len(res):
     urls.append(tempurl)
     x += 1
 x = 0
+urls.sort()
 while x < len(urls):
+    try:
+        if urls[x] == urls[x+1]:
+            urls.pop(x+1)
+    except:
+        y = 0
     fileName = urls[x]
     fileName = fileName[36:]
     img = requests.get(urls[x])
     cwd = os.getcwd() # Get current directory
     filePath = cwd + "\\Downloads\\" + fileName # Set download folder
     with open(filePath,"wb") as code:
+        print("Downloading {0}".format(fileName))
         code.write(img.content)
     x += 1
     time.sleep(1) # Rate Limit
-    print("Downloading {0}".format(fileName))
