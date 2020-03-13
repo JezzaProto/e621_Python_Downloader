@@ -14,10 +14,18 @@ url += "&limit={0}&callback=callback".format(postnum) # Add rest of url
 req = requests.get(url) # Sends a get request to server to get back urls of images
 data = req.json() # Records the response as json
 data = str(data)
-res = [i for i in range(len(data)) if data.startswith("https://", i)]
+res = [i for i in range(len(data)) if data.startswith("https://static1.e621.net/data", i)]
 print(res)
 print(url)
-startpos = res[0]
-endpos = res[0]+72
-testing = data[startpos:endpos]
-print(testing)
+x = 0
+while x < len(res):
+    startpos = res[x]
+    endpos = res[x]+72
+    strings = data[startpos:endpos]
+    if "preview" in strings or "sample" in strings:
+        data = data [:startpos] + data[endpos+8:]
+        res.pop(x)
+    else:
+        x += 1
+    res = [i for i in range(len(data)) if data.startswith("https://static1.e621.net/data", i)]
+print(data)
