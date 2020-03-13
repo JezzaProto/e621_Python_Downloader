@@ -1,8 +1,14 @@
 import requests
 import time
 import json
-from os.path import join as pjoin
 import os
+ratings = str(input("Please enter what rating you want (Safe, Questionable, Explicit, All):\n"))
+if ratings.lower() == "safe":
+    rating = "rating:safe"
+elif ratings.lower() == "questionable":
+    rating = "rating:questionable"
+elif ratings.lower() == "explicit":
+    rating = "rating:explicit"
 tag = str(input("Please enter what tags you would like (separated with a semicolon):\n"))
 tags = tag.split(";")
 postnum = str(input("Please enter how many posts you would like to download (Beware, a large number will take a while to download):\n"))
@@ -11,7 +17,7 @@ url = "https://e621.net/posts.json?tags=" # Generates first static part of e621.
 for x in tags: # Add all tags specified
     url += x
     url += "%20"
-url = url[:-3]
+url += rating
 url += "&limit={0}&callback=callback".format(postnum) # Add rest of url
 req = requests.get(url) # Sends a get request to server to get back urls of images
 data = req.json() # Records the response as json
@@ -51,8 +57,8 @@ while x < len(urls):
     img = requests.get(urls[x])
     cwd = os.getcwd() # Get current directory
     filePath = cwd + "\\Downloads\\" + fileName # Set download folder
-    with open(filePath,"wb") as code:
+    with open(filePath,"wb") as image:
         print("Downloading {0}".format(fileName))
-        code.write(img.content)
+        image.write(img.content)
     x += 1
     time.sleep(1) # Rate Limit
