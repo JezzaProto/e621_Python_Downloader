@@ -2,13 +2,19 @@ import requests
 import time
 import json
 import os
-ratings = str(input("Please enter what rating you want (Safe, Questionable, Explicit, All):\n"))
+ratings = str(input("Please enter what rating you want [(-)Safe, (-)Questionable, (-)Explicit, All]:\n"))
 if ratings.lower() == "safe":
     rating = "rating:safe"
 elif ratings.lower() == "questionable":
     rating = "rating:questionable"
 elif ratings.lower() == "explicit":
     rating = "rating:explicit"
+elif ratings.lower() = "-safe":
+    rating = "-rating:safe"
+elif ratings.lower() = "-questionable":
+    rating = "-rating:questionable"
+elif ratings.lower() = "-explicit":
+    rating = "-rating:explicit"
 tag = str(input("Please enter what tags you would like (separated with a semicolon):\n"))
 tags = tag.split(";")
 postnum = str(input("Please enter how many posts you would like to download (Beware, a large number will take a while to download):\n"))
