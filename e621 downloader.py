@@ -9,11 +9,11 @@ elif ratings.lower() == "questionable":
     rating = "rating:questionable"
 elif ratings.lower() == "explicit":
     rating = "rating:explicit"
-elif ratings.lower() = "-safe":
+elif ratings.lower() == "-safe":
     rating = "-rating:safe"
-elif ratings.lower() = "-questionable":
+elif ratings.lower() == "-questionable":
     rating = "-rating:questionable"
-elif ratings.lower() = "-explicit":
+elif ratings.lower() == "-explicit":
     rating = "-rating:explicit"
 tag = str(input("Please enter what tags you would like (separated with a semicolon):\n"))
 tags = tag.split(";")
