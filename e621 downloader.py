@@ -41,15 +41,15 @@ x = 0
 while x < len(urls):
     fileName = urls[x]
     fileName = fileName[36:]
-    if ".web" in fileName:
+    if ".web" in fileName: # WEBM extension too long
         print("Skipping WEBM download")
         x += 1
         continue
     img = requests.get(urls[x])
-    cwd = os.getcwd()
-    filePath = cwd + "\\Downloads\\" + fileName
+    cwd = os.getcwd() # Get current directory
+    filePath = cwd + "\\Downloads\\" + fileName # Set download folder
     with open(filePath,"wb") as code:
         code.write(img.content)
     x += 1
-    time.sleep(1)
+    time.sleep(1) # Rate limit
     print("Downloading {0}".format(fileName))
