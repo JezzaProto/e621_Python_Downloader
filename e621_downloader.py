@@ -6,6 +6,7 @@ import os
 import sys
 
 defaultURL = "https://e621.net/posts.json"
+pastURL = ""
 currentFolder = os.path.dirname(os.path.realpath(__file__))
 apiKeyFile = currentFolder + os.sep + "apikey.txt"
 
@@ -16,7 +17,7 @@ lowestID = 0
 stop = False
 
 headers = {"User-Agent":"E6-Post-Downloader/1.0 (by jezzar on E621 with help from pup)"}
-params = {"tags":"protogen"}
+params = {"tags":""}
 
 def rateLimiting():
     global lastTime
@@ -64,7 +65,12 @@ tags = tag.split(";")
 
 postnum = str(input("Please enter how many posts you would like to download (Beware, a large number will take a while to download):\n"))
 
-req = requests.get(defaultURL, headers=headers, params=params, auth=HTTPBasicAuth(apiUser,apiKey))
+grabURL = f"{defaultURL}?tags="
+for x in tags:
+    grabURL += str(x)
+grabURL += f"&limit={postnum}"
+
+req = requests.get(grabURL, headers=headers, auth=HTTPBasicAuth(apiUser,apiKey))
 data = req.json()
 
 if req.status_code != 200:
@@ -74,9 +80,12 @@ if req.status_code != 200:
 while stop != True:
     if len(data["posts"]) < absoluteLimit:
         stop = True
-
+    
     for posts in data["posts"]:
         postURL = posts["file"]["url"]
+        if pastURL == postURL:
+            continue
+        pastURL = posts["file"]["url"]
         fileName = postURL[36:]
         img = requests.get(postURL)
         cwd = os.path.dirname(os.path.realpath(__file__)) # Get current directory
@@ -85,7 +94,10 @@ while stop != True:
             print(f"Downloading {fileName}")
             image.write(img.content)
 
-    params = {"tags":""}
+    rateLimiting()
 
+    req = requests.get(grabURL, headers=headers, auth=HTTPBasicAuth(apiUser,apiKey))
+    data = req.json()
+    
     if req.status_code != 200:
         print("Couldn't contact server.")
