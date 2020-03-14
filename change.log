@@ -5,3 +5,5 @@ Full Rewrite - Now much quicker to download.
 V2.1:
 No longer re-downloads images.
 Minor bug fixes.
+V2.2:
+Fixed bug where it would download 75 images max.

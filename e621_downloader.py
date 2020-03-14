@@ -82,7 +82,7 @@ for x in predownloaded:
     downloaded.append(x.split(".")[0])
 
 while stop != True:
-    if len(data["posts"]) < absoluteLimit:
+    if len(data["posts"]) > absoluteLimit:
         stop = True
     
     for posts in data["posts"]:
@@ -107,9 +107,7 @@ while stop != True:
     grabURL = f"{defaultURL}?tags="
     x = " ".join(tags)
     grabURL += x
-    grabURL += f" {rating}"
-    lastID = str(lowestID)
-    grabURL += f"&page=b+{lastID}"
+    grabURL += f" {rating}&page=b{lowestID}&limit=320"
     
     req = requests.get(grabURL, headers=headers, auth=HTTPBasicAuth(apiUser,apiKey))
     data = req.json()
