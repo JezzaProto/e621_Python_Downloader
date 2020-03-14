@@ -16,7 +16,7 @@ lastTime = time.time()
 lowestID = -1
 stop = False
 
-headers = {"User-Agent":"E6-Post-Downloader/1.0 (by jezzar on E621 with help from pup)"}
+headers = {"User-Agent":"E6-Post-Downloader/1.0 (by jezzar on E621)"}
 params = {"tags":""}
 
 def rateLimiting():
@@ -32,7 +32,7 @@ try:
 except FileNotFoundError:
     with open(apiKeyFile,"w") as apiFile:
         apiFile.write("user="+os.linesep+"api_key=")
-    print("apikey.txt created - Add your username and API Key (https://e621.net/users/home -> Manage API Access) then press enter to continue")
+    print("apikey.txt created - Add your username and API Key (https://e621.net/users/home -> Manage API Access) then restart")
     input()
     exit()
 
@@ -60,19 +60,26 @@ elif ratings.lower() == "-explicit":
 else:
     rating = ""
 
-tag = str(input("Please enter what tags you would like (separated with a semicolon):\n"))
-tags = tag.split(";")
+tag = str(input("Please enter what tags you would like (separated with a space):\n"))
+tags = tag.split(" ")
 
 grabURL = f"{defaultURL}?tags="
-for x in tags:
-    grabURL += str(x)
+x = " ".join(tags)
+grabURL += x
+grabURL += f" {rating}"
 
 req = requests.get(grabURL, headers=headers, auth=HTTPBasicAuth(apiUser,apiKey))
 data = req.json()
 
 if req.status_code != 200:
     print(f"Couldn't contact server. Error code: {req.status_code}.")
+    print(data)
     sys.exit()
+
+predownloaded = os.listdir("Downloads")
+downloaded = []
+for x in predownloaded:
+    downloaded.append(x.split(".")[0])
 
 while stop != True:
     if len(data["posts"]) < absoluteLimit:
@@ -80,15 +87,17 @@ while stop != True:
     
     for posts in data["posts"]:
         postURL = posts["file"]["url"]
-        if lowestID > post['id'] or lowestID == -1:
-            lowestID = post['id']
+        if lowestID > posts['id'] or lowestID == -1:
+            lowestID = posts['id']
         if pastURL == postURL:
+            continue
+        if posts["file"]["md5"] in downloaded:
+            print("Skipping existing post.")
             continue
         pastURL = posts["file"]["url"]
         fileName = postURL[36:]
         img = requests.get(postURL)
-        cwd = os.path.dirname(os.path.realpath(__file__)) # Get current directory
-        filePath = cwd + "\\Downloads\\" + fileName # Set download folder
+        filePath = currentFolder + os.path.sep + "Downloads" + os.path.sep + fileName
         with open(filePath,"wb") as image:
             print(f"Downloading {fileName}")
             image.write(img.content)
@@ -96,8 +105,9 @@ while stop != True:
     rateLimiting()
 
     grabURL = f"{defaultURL}?tags="
-    for x in tags:
-        grabURL += str(x)
+    x = " ".join(tags)
+    grabURL += x
+    grabURL += f" {rating}"
     lastID = str(lowestID)
     grabURL += f"&page=b+{lastID}"
     
@@ -105,4 +115,6 @@ while stop != True:
     data = req.json()
     
     if req.status_code != 200:
-        print("Couldn't contact server.")
+        print(f"Couldn't contact server. Error code: {req.status_code}.")
+        print(data)
+        sys.exit()
