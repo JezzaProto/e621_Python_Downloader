@@ -6,17 +6,17 @@ import os
 import sys
 
 defaultURL = "https://e621.net/posts.json"
-currentFolder = os.getcwd()
+currentFolder = os.path.dirname(os.path.realpath(__file__))
 apiKeyFile = currentFolder + os.sep + "apikey.txt"
 
-absoluteLimit = 250
+absoluteLimit = 320
 rateLimit = 1
 lastTime = time.time()
 lowestID = 0
 stop = False
 
-headers = {"User-Agent":"E6-Post-Downloader/1.0 (by JezzaR on E621)"}
-params = {"Tags":""}
+headers = {"User-Agent":"E6-Post-Downloader/1.0 (by jezzar on E621 with help from pup)"}
+params = {"tags":"protogen"}
 
 def rateLimiting():
     global lastTime
@@ -31,9 +31,17 @@ try:
 except FileNotFoundError:
     with open(apiKeyFile,"w") as apiFile:
         apiFile.write("user="+os.linesep+"api_key=")
-    print("apikey.txt created - Add your username and API Key then press enter to continue")
+    print("apikey.txt created - Add your username and API Key (https://e621.net/users/home -> Manage API Access) then press enter to continue")
     input()
-    os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
+    exit()
+
+apiUser = apiKeys[0].split("=")[1]
+apiKey = apiKeys[2].split("=")[1]
+
+if apiUser == "" or apiKey == "":
+    print("Please actually enter your username and API Key (https://e621.net/users/home -> Manage API Access)...")
+    input()
+    exit()
 
 ratings = str(input("Please enter what rating you want [(-)Safe, (-)Questionable, (-)Explicit, All]:\n"))
 if ratings.lower() == "safe":
@@ -56,32 +64,28 @@ tags = tag.split(";")
 
 postnum = str(input("Please enter how many posts you would like to download (Beware, a large number will take a while to download):\n"))
 
-defaultURL = "https://e621.net/posts.json"
-currentFolder = os.getcwd()
-apiKeyFile = currentFolder + os.sep + "apikey.txt"
+req = requests.get(defaultURL, headers=headers, params=params, auth=HTTPBasicAuth(apiUser,apiKey))
+data = req.json()
 
-absoluteLimit = 250
-rateLimit = 1
-lastTime = time.time()
-lowestID = 0
-stop = False
+if req.status_code != 200:
+    print(f"Couldn't contact server. Error code: {req.status_code}.")
+    sys.exit()
 
-headers = {"User-Agent":"E6-Post-Downloader/1.0 (by JezzaR on E621)"}
-params = {"Tags":tag}
+while stop != True:
+    if len(data["posts"]) < absoluteLimit:
+        stop = True
 
-def rateLimiting():
-    global lastTime
-    timeTaken = time.time() - lastTime
-    if timeTaken <= rateLimit:
-        time.sleep(rateLimit-timeTaken)
-    lastTime = time.time()
+    for posts in data["posts"]:
+        postURL = posts["file"]["url"]
+        fileName = postURL[36:]
+        img = requests.get(postURL)
+        cwd = os.path.dirname(os.path.realpath(__file__)) # Get current directory
+        filePath = cwd + "\\Downloads\\" + fileName # Set download folder
+        with open(filePath,"wb") as image:
+            print(f"Downloading {fileName}")
+            image.write(img.content)
 
-try:
-    with open(apiKeyFile) as apiFile:
-        apiKeys = apiFile.read().splitlines()
-except FileNotFoundError:
-    with open(apiKeyFile,"w") as apiFile:
-        apiFile.write("user="+os.linesep+"api_key=")
-    print("apikey.txt created - Add your username and API Key then press enter to continue")
-    input()
-    os.execl(sys.executable, os.path.abspath(__file__), *sys.argv)
+    params = {"tags":""}
+
+    if req.status_code != 200:
+        print("Couldn't contact server.")
