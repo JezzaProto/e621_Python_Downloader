@@ -13,7 +13,7 @@ apiKeyFile = currentFolder + os.sep + "apikey.txt"
 absoluteLimit = 320
 rateLimit = 1
 lastTime = time.time()
-lowestID = 0
+lowestID = -1
 stop = False
 
 headers = {"User-Agent":"E6-Post-Downloader/1.0 (by jezzar on E621 with help from pup)"}
@@ -63,12 +63,9 @@ else:
 tag = str(input("Please enter what tags you would like (separated with a semicolon):\n"))
 tags = tag.split(";")
 
-postnum = str(input("Please enter how many posts you would like to download (Beware, a large number will take a while to download):\n"))
-
 grabURL = f"{defaultURL}?tags="
 for x in tags:
     grabURL += str(x)
-grabURL += f"&limit={postnum}"
 
 req = requests.get(grabURL, headers=headers, auth=HTTPBasicAuth(apiUser,apiKey))
 data = req.json()
@@ -83,6 +80,8 @@ while stop != True:
     
     for posts in data["posts"]:
         postURL = posts["file"]["url"]
+        if lowestID > post['id'] or lowestID == -1:
+            lowestID = post['id']
         if pastURL == postURL:
             continue
         pastURL = posts["file"]["url"]
@@ -96,6 +95,12 @@ while stop != True:
 
     rateLimiting()
 
+    grabURL = f"{defaultURL}?tags="
+    for x in tags:
+        grabURL += str(x)
+    lastID = str(lowestID)
+    grabURL += f"&page=b+{lastID}"
+    
     req = requests.get(grabURL, headers=headers, auth=HTTPBasicAuth(apiUser,apiKey))
     data = req.json()
     
