@@ -2,3 +2,6 @@ V1.0:
 First Release - Very unoptimised, will do a whole rewrite soon.
 V2.0:
 Full Rewrite - Now much quicker to download.
+V2.1:
+No longer re-downloads images.
+Minor bug fixes.
