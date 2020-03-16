@@ -16,7 +16,7 @@ lastTime = time.time()
 lowestID = -1
 stop = False
 
-headers = {"User-Agent":"E6-Post-Downloader/1.0 (by jezzar on E621)"}
+headers = {"User-Agent":"E6-Post-Downloader/2.2 (by jezzar on E621)"}
 params = {"tags":""}
 
 def rateLimiting():
