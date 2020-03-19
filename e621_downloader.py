@@ -18,7 +18,6 @@ lowestID = -1
 stop = False
 
 headers = {"User-Agent":"E6-Post-Downloader/3.0 (by jezzar on E621)"}
-params = {"tags":""}
 
 def rateLimiting():
     global lastTime
@@ -95,7 +94,13 @@ while stop != True:
             lowestID = posts['id']
         if pastURL == postURL:
             continue
+        fileName = "-".join(posts["tags"]["general"])
+        if len(fileName) > 150:
+                fileName = fileName[:150]
         if posts["file"]["md5"] in downloaded:
+            print("Skipping existing post.")
+            continue
+        if fileName in downloaded:
             print("Skipping existing post.")
             continue
         pastURL = posts["file"]["url"]
@@ -107,6 +112,8 @@ while stop != True:
             fileName = "-".join(posts["tags"]["general"])
             if len(fileName) > 150:
                 fileName = fileName[:150]
+            fileName = fileName.replace("/","")
+            fileName = fileName.replace(":","")
             fileExt = "." + pastURL.split(".")[3]
             filePath = currentFolder + os.path.sep + "Downloads" + os.path.sep + fileName + fileExt
         img = requests.get(postURL)
