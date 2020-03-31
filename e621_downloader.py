@@ -85,7 +85,7 @@ predownloaded = os.listdir("Downloads")
 downloaded = []
 for path, subdirs, files in os.walk(currentFolder + os.path.sep + "Downloads"):
     for name in files:
-        downloaded.append(x.split(".")[0])
+        downloaded.append(name.split(".")[0])
     
 while stop != True:
     if len(data["posts"]) > absoluteLimit:

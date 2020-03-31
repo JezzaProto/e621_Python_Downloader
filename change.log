@@ -7,3 +7,7 @@ No longer re-downloads images.
 Minor bug fixes.
 V2.2:
 Fixed bug where it would download 75 images max.
+V3.5:
+Pictures now downloaded into tag folder; Allowed downloading without API Key/Username; Made error messages slightly more userfriendly.
+V3.51:
+Fixed bug where it would re-download images >.<
