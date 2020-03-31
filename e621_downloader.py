@@ -1,10 +1,5 @@
-import requests
+import requests, time, json, os, sys, hashlib
 from requests.auth import HTTPBasicAuth
-import time
-import json
-import os
-import sys
-import hashlib
 
 defaultURL = "https://e621.net/posts.json"
 pastURL = ""
@@ -17,7 +12,7 @@ lastTime = time.time()
 lowestID = -1
 stop = False
 
-headers = {"User-Agent":"E6-Post-Downloader/3.0 (by jezzar on E621)"}
+headers = {"User-Agent":"E6-Post-Downloader/3.5 (by jezzar on E621)"}
 
 def rateLimiting():
     global lastTime
@@ -40,9 +35,10 @@ apiUser = apiKeys[0].split("=")[1]
 apiKey = apiKeys[2].split("=")[1]
 
 if apiUser == "" or apiKey == "":
-    print("Please actually enter your username and API Key (https://e621.net/users/home -> Manage API Access)...")
-    input()
-    exit()
+    print("Do you want to continue without an Username or API Key? (Y/N) (This will enable the global blacklist.)")
+    useApi = input()
+    if useApi != "Y":
+        exit()
 
 naming = str(input("What naming scheme would you like? (md5, tags)?\n"))
 
@@ -70,20 +66,27 @@ x = " ".join(tags)
 grabURL += x
 grabURL += f" {rating}"
 
+folderName = x
+if folderName == "":
+    folderName = "any_tags"
+folderPath = currentFolder + os.path.sep + "Downloads" + os.path.sep + x
+if not os.path.exists(folderPath):
+    os.makedirs(folderPath)
+
 req = requests.get(grabURL, headers=headers, auth=HTTPBasicAuth(apiUser,apiKey))
 data = req.json()
 
 if req.status_code != 200:
-    print(f"Couldn't contact server. Error code: {req.status_code}.")
-    print(data)
+    print(f"Couldn't contact e621. Error code: {req.status_code}.")
+    print(f"Json: {data}")
     sys.exit()
 
 predownloaded = os.listdir("Downloads")
 downloaded = []
-for x in predownloaded:
-    downloaded.append(x.split(".")[0])
+for path, subdirs, files in os.walk(currentFolder + os.path.sep + "Downloads"):
+    for name in files:
+        downloaded.append(x.split(".")[0])
     
-
 while stop != True:
     if len(data["posts"]) > absoluteLimit:
         stop = True
@@ -132,6 +135,6 @@ while stop != True:
     data = req.json()
     
     if req.status_code != 200:
-        print(f"Couldn't contact server. Error code: {req.status_code}.")
-        print(data)
+        print(f"Couldn't contact e621. Error code: {req.status_code}.")
+        print(f"Json: {data}")
         sys.exit()
