@@ -11,4 +11,3 @@ V3.5:
 Pictures now downloaded into tag folder; Allowed downloading without API Key/Username; Made error messages slightly more userfriendly.
 V3.51:
 Fixed bug where it would re-download images >.<
-
