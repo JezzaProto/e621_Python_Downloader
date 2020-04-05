@@ -67,14 +67,13 @@ def startDownload():
     else:
         rating = ""
 
-    tagstr = False
-    while not tagstr:
-        seg1 = tagEntry.get()
-        # check if something is typed
-        if seg1 != (""):
-            tagstr = True
-            tag = str(seg1)
-            tags = tag.split(" ")
+    seg1 = tagEntry.get()
+    if seg1 != (""):
+        tagstr = True
+        tag = str(seg1)
+        tags = tag.split(" ")
+    else:
+        tags = ""
 
     grabURL = f"{defaultURL}?tags="
     x = " ".join(tags)
