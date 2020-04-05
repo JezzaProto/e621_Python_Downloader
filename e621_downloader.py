@@ -3,7 +3,7 @@ import requests, time, json, os, sys, hashlib, errno, glob, re, threading
 from requests.auth import HTTPBasicAuth
 from tkinter.ttk import Combobox
 
-headers = {"User-Agent":"E6-Post-Downloader/3.5 (by jezzar on E621)"}
+headers = {"User-Agent":"E6-Post-Downloader/4.0 (by jezzar on E621)"}
 
 def rateLimiting():
     global lastTime
