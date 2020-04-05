@@ -13,3 +13,5 @@ V3.51:
 Fixed bug where it would re-download images >.<
 V4:
 New GUI! Very basic at the moment but hoping to add more features in the future! P.S: The GUI locks up when its starts downloading, it will only update after each image has been downloaded.
+V4.01:
+Fixed bug where if no tags entered (ie all tags) it would hang.
