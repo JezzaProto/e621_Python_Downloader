@@ -3,7 +3,7 @@ import requests, time, json, os, sys, hashlib, errno, glob, re, threading
 from requests.auth import HTTPBasicAuth
 from tkinter.ttk import Combobox
 
-headers = {"User-Agent":"E6-Post-Downloader/4.0 (by jezzar on E621)"}
+headers = {"User-Agent":"E6-Post-Downloader/4.1 (by jezzar on E621)"}
 
 def rateLimiting():
     global lastTime
@@ -17,7 +17,7 @@ def startDownload():
     defaultURL = "https://e621.net/posts.json"
     pastURL = ""
     currentFolder = os.path.dirname(os.path.realpath(__file__))
-    apiKeyFile = currentFolder + os.sep + "apikey.txt"
+    apiKeyFile = os.path.join(currentFolder, "apikey.txt")
     stop = False
     absoluteLimit = 320
     rateLimit = 1
@@ -31,7 +31,7 @@ def startDownload():
         with open(apiKeyFile,"w") as apiFile:
             apiFile.write("user="+os.linesep+"api_key=")
         outputLabel.config(text="apikey.txt created - Add your username and API Key (https://e621.net/users/home -> Manage API Access) then press download again.")
-        input()
+        return
     GUI.update()
     apiUser = apiKeys[0].split("=")[1]
     apiKey = apiKeys[2].split("=")[1]
@@ -52,17 +52,17 @@ def startDownload():
         naming = "md5"
     # set appropriate ratings
     ratings = ratingList.get()
-    if ratings.lower() == "Safe":
+    if ratings == "Safe":
         rating = "rating:safe"
-    elif ratings.lower() == "Questionable":
+    elif ratings == "Questionable":
         rating = "rating:questionable"
-    elif ratings.lower() == "Explicit":
+    elif ratings == "Explicit":
         rating = "rating:explicit"
-    elif ratings.lower() == "-Safe":
+    elif ratings == "-Safe":
         rating = "-rating:safe"
-    elif ratings.lower() == "-Questionable":
+    elif ratings == "-Questionable":
         rating = "-rating:questionable"
-    elif ratings.lower() == "-Explicit":
+    elif ratings == "-Explicit":
         rating = "-rating:explicit"
     else:
         rating = ""
@@ -78,7 +78,7 @@ def startDownload():
     grabURL = f"{defaultURL}?tags="
     x = " ".join(tags)
     grabURL += x
-    grabURL += f" {rating}"
+    grabURL += f" {rating}&limit=320"
 
     downfoldersw = downFolderEntry.get()
     if downfoldersw:
@@ -86,15 +86,15 @@ def startDownload():
     else:# if nothing is typed tags will be used as folder name
         downfolder = tag.title()
     GUI.update()
-    if not os.path.exists(downfolder):
+    if not os.path.exists(os.path.join(currentFolder, "Downloads", downfolder)):
         try:# create folder
-            os.makedirs(downfolder)
-            outputLabel.config(text="Folder "+downfolder+" created!\nStarting download!!")
+            os.makedirs(os.path.join(currentFolder, "Downloads", downfolder))
+            outputLabel.config(text=f"Folder {downfolder} created!\nStarting download!!")
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
     else:# strart download if already exist
-        outputLabel.config(text="Folder "+downfolder+" already exists!\nStarting download!!")
+        outputLabel.config(text=f"Folder {downfolder} already exists!\nStarting download!!")
     GUI.update()
     req = requests.get(grabURL, headers=headers, auth=HTTPBasicAuth(apiUser,apiKey))
     data = req.json()
@@ -181,13 +181,14 @@ def startDownload():
             img = requests.get(postURL)
             if naming.lower() == "md5":
                 fileName = postURL[36:]
-                filePath = currentFolder + os.path.sep + "Downloads" + os.path.sep + fileName
+                filePath = os.path.join(currentFolder, "Downloads", downfolder, fileName)
             elif naming.lower() == "tags":
                 if len(fileName) > 150:
                     fileName = fileName[:150]
                 fileExt = "." + pastURL.split(".")[3]
                 writeName = str(lowestID) + " " + safe_filename(fileName+' '.join(GeneralTags.split()[:int(maxtags)]))
-                filePath = currentFolder + os.path.sep + downfolder + os.path.sep + writeName + fileExt
+                fullName = writeName + fileExt
+                filePath = os.path.join(currentFolder, "Downloads", downfolder, fullName)
             img = requests.get(postURL)
             with open(filePath,"wb") as image:
                 outputLabel.config(text=f"Downloading {fileName}")
